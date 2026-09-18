@@ -15,11 +15,6 @@ pip install -r requirements.txt
 ## Test sans clé API (validation de la mécanique)
 
 ```bash
-# Dans un premier terminal : lance MiniHub (voir target-env/README.md)
-cd ../target-env && docker compose up --build
-
-# Dans un second terminal :
-cd red-agent
 python test_agent_mock.py
 ```
 

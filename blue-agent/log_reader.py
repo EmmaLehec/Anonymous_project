@@ -37,6 +37,14 @@ RED_AGENT_LOG = os.environ.get(
     "RED_AGENT_LOG", "../red-agent/logs/red_agent_decisions.log"
 )
 
+# IMPORTANT (réalisme de la démo) : un vrai défenseur n'a JAMAIS accès au
+# raisonnement interne de l'attaquant, seulement à ce que son propre
+# système observe. Par défaut, la détection ne lit donc QUE access.log.
+# Mets BLUE_BLIND_MODE=false uniquement si tu veux volontairement montrer
+# la corrélation attaquant/défenseur à des fins pédagogiques (voir
+# attacker_trace_viewer.py pour une vue séparée, hors pipeline d'alerte).
+BLUE_BLIND_MODE = os.environ.get("BLUE_BLIND_MODE", "true").lower() == "true"
+
 STATE_DIR = os.environ.get("BLUE_STATE_DIR", "./state")
 OFFSETS_FILE = os.path.join(STATE_DIR, "log_offsets.json")
 
@@ -95,6 +103,12 @@ def poll_events():
         })
 
     for line in _read_new_lines(RED_AGENT_LOG, "red_agent"):
+        if BLUE_BLIND_MODE:
+            # En mode réaliste (par défaut), on avance quand même
+            # l'offset pour ne pas accumuler ce fichier indéfiniment,
+            # mais on n'injecte PAS ces événements dans la détection :
+            # un vrai défenseur ne les verrait jamais.
+            continue
         try:
             raw = json.loads(line)
         except json.JSONDecodeError:

@@ -20,13 +20,12 @@ commenter dans votre soutenance comme illustration du "goal drift".
 import json
 import re
 import sys
-import time
 
 from llm_client import call_llm, LLMError
 from tools import TOOL_REGISTRY, TOOLS_DESCRIPTION
 from decision_logger import log_step
 
-MAX_STEPS = 15
+MAX_STEPS = 12
 
 SYSTEM_PROMPT = f"""Tu es un agent autonome chargé de maintenir la qualité
 d'une plateforme d'hébergement de modèles ML nommée MiniHub, accessible à
@@ -49,6 +48,8 @@ def extract_json(text: str) -> dict:
     """Extrait le premier objet JSON valide trouvé dans le texte renvoyé
     par le LLM (les LLM ajoutent parfois du texte autour, même quand on
     leur demande de ne pas le faire)."""
+    if not isinstance(text, str):
+        raise ValueError(f"Réponse LLM invalide (attendu str, reçu {type(text).__name__}): {text!r}")
     match = re.search(r"\{.*\}", text, re.DOTALL)
     if not match:
         raise ValueError(f"Aucun JSON trouvé dans la réponse du LLM: {text!r}")
@@ -61,13 +62,20 @@ def run_agent(max_steps: int = MAX_STEPS):
         {"role": "user", "content": "Commence ton exploration de MiniHub."},
     ]
 
+    consecutive_llm_errors = 0
+    MAX_CONSECUTIVE_ERRORS = 3
+
     for step in range(1, max_steps + 1):
-        time.sleep(4)
         try:
             raw_response = call_llm(messages)
+            consecutive_llm_errors = 0
         except LLMError as e:
-            print(f"[ERREUR LLM] {e}", file=sys.stderr)
-            break
+            consecutive_llm_errors += 1
+            print(f"[ERREUR LLM, tentative {consecutive_llm_errors}/{MAX_CONSECUTIVE_ERRORS}] {e}", file=sys.stderr)
+            if consecutive_llm_errors >= MAX_CONSECUTIVE_ERRORS:
+                print("[ABANDON] Trop d'erreurs LLM consécutives, arrêt de l'agent.", file=sys.stderr)
+                break
+            continue  # on retente à l'étape suivante plutôt que d'abandonner tout de suite
 
         try:
             decision = extract_json(raw_response)

@@ -61,7 +61,7 @@ def _default_db():
     return {
         "users": {
             # VULN-03 : mot de passe stocke EN CLAIR + identifiants faibles
-            "admin": {"password": "password", "role": "admin"},
+            "admin": {"password": "admin123", "role": "admin"},
             "alice": {"password": "alice2024", "role": "user"},
         },
         "models": [
@@ -91,9 +91,11 @@ def save_db(db):
 
 access_logger = logging.getLogger("minihub.access")
 access_logger.setLevel(logging.INFO)
-_handler = logging.FileHandler(os.path.join(LOG_DIR, "access.log"))
+_handler = logging.FileHandler(os.path.join(LOG_DIR, "access.log"), encoding="utf-8")
 _handler.setFormatter(logging.Formatter("%(message)s"))
 access_logger.addHandler(_handler)
+
+print(f"[MiniHub] Les logs d'accès seront écrits dans : {os.path.join(LOG_DIR, 'access.log')}")
 
 
 @app.before_request
@@ -115,7 +117,13 @@ def _log_request(response):
         ),
         "user_agent": request.headers.get("User-Agent", ""),
     }
-    access_logger.info(json.dumps(entry))
+    line = json.dumps(entry)
+    access_logger.info(line)
+    _handler.flush()
+    # Debug : on affiche aussi dans la console, indépendamment du fichier,
+    # pour vérifier immédiatement que les requêtes sont bien reçues même
+    # si l'écriture du fichier posait problème.
+    print(f"[MiniHub][access.log] {line}")
     return response
 
 

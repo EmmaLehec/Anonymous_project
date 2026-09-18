@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Modèles{% endblock %}
+{% block content %}
+<h2>Modèles disponibles</h2>
+<table>
+  <tr><th>Nom</th><th>Propriétaire</th><th>Téléchargements</th><th></th></tr>
+  {% for m in models %}
+  <tr>
+    <td>{{ m.name }}</td>
+    <td>{{ m.owner }}</td>
+    <td>{{ m.downloads }}</td>
+    <td><a href="{{ url_for('download_model', filename=m.name) }}">Télécharger</a></td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}

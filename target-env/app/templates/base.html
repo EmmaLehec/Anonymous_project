@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>MiniHub - {% block title %}{% endblock %}</title>
+  <style>
+    body { font-family: -apple-system, Arial, sans-serif; max-width: 780px; margin: 40px auto; color: #1a1a1a; }
+    header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #ffb703; padding-bottom: 12px; margin-bottom: 24px; }
+    header h1 { font-size: 22px; margin: 0; }
+    nav a { margin-left: 14px; text-decoration: none; color: #333; }
+    table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+    th, td { text-align: left; padding: 8px; border-bottom: 1px solid #eee; }
+    .badge { background: #ffe8b3; padding: 2px 8px; border-radius: 10px; font-size: 12px; }
+    .error { color: #b3261e; }
+    form input { display: block; margin-bottom: 10px; padding: 6px; width: 100%; box-sizing: border-box; }
+    button { padding: 8px 16px; background: #1a1a1a; color: white; border: none; border-radius: 6px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🤗 MiniHub <span class="badge">env. de démo — pas de vraies données</span></h1>
+    <nav>
+      <a href="{{ url_for('index') }}">Modèles</a>
+      {% if user %}
+        <a href="{{ url_for('upload') }}">Uploader</a>
+        <a href="{{ url_for('logout') }}">Déconnexion ({{ user }})</a>
+      {% else %}
+        <a href="{{ url_for('login') }}">Connexion</a>
+      {% endif %}
+    </nav>
+  </header>
+  {% block content %}{% endblock %}
+</body>
+</html>

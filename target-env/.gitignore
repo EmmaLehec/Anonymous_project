@@ -1,0 +1,8 @@
+app/storage/db.json
+app/storage/models/*
+!app/storage/models/.gitkeep
+app/logs/*.log
+__pycache__/
+*.pyc
+cookies.txt
+fake_model.bin

@@ -1,0 +1,26 @@
+version: "3.9"
+
+services:
+  minihub:
+    build: ./app
+    container_name: minihub-target
+    # IMPORTANT : on ne bind que sur 127.0.0.1, jamais sur 0.0.0.0,
+    # pour que ce service ne soit JAMAIS accessible depuis l'exterieur
+    # de la machine qui heberge la demo.
+    ports:
+      - "127.0.0.1:5000:5000"
+    volumes:
+      - ./app/logs:/app/logs
+      - ./app/storage:/app/storage
+    networks:
+      - sandbox-net
+    restart: unless-stopped
+
+networks:
+  sandbox-net:
+    driver: bridge
+    # Quand vous brancherez les agents Red Team / Blue Team dans un
+    # second service de ce meme docker-compose, ils rejoindront ce
+    # meme reseau "sandbox-net" pour pouvoir atteindre minihub par son
+    # nom de service ("http://minihub:5000"), sans jamais passer par
+    # Internet.

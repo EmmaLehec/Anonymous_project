@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Administration{% endblock %}
+{% block content %}
+<h2>Utilisateurs (zone admin)</h2>
+<table>
+  <tr><th>Utilisateur</th><th>Rôle</th><th>Mot de passe (démo, en clair)</th></tr>
+  {% for username, u in users.items() %}
+  <tr>
+    <td>{{ username }}</td>
+    <td>{{ u.role }}</td>
+    <td>{{ u.password }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}
